@@ -1,27 +1,26 @@
 const express = require("express");
 const app = express();
-// const {Sequelize, Model, DataTypes} = require("sequelize");
-// const sequelize = new Sequelize("course-shop_db", "root", "1234_Airat_qwerTy", {
-//     dialect: "mysql",
-//     host: "localhost"
-// });
+const config = require("config");
+const database = require("./db");
+const routes = require("./routes");
+const PORT = config.get("port") || 3001;
+const LOGGING = config.get("logging");
 
-// async function testConnectionToMySQLDB() {
-//     try {
-//         await sequelize.authenticate();
-//         console.log('CONNECTION CONFIRMED!');
-//     } catch (error) {
-//         console.error('CONNECTION ERROR:', error);
-//     }
-// }
-// testConnectionToMySQLDB();
+async function start() {
+    if(LOGGING) {
+        console.log("server is starting...");
+    }
+    
+    if (database.isConnection()) {
+        app.use(express.json({ extended: true }));
+        routes(app);
+        app.listen(PORT, () => {
+            console.log(`server starting at the port ${PORT}...`);
+        });
+    } else {
+        console.log("oops... Server not started...");
+    }
 
-const PORT = 3001;
+}
 
-
-app.use(express.json({ extended: true }));
-app.use("/", require("./routes/main.routes"));
-
-app.listen(PORT, () => {
-    console.log(`Server starting at the port ${PORT}...`);
-});
+start();
